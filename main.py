@@ -1,28 +1,30 @@
 import os
 import requests
 from sys import exit
-# from github import Github
-# from github import Auth
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# auth = Auth.Token(os.getenv('TOKEN'))
-# g = Github(auth=auth)
+r_headers = {
+	'Authorization': 'Bearer ' + str(os.getenv('GH_TOKEN')),
+	'Accept': 'application/vnd.github+json',
+	'X-GitHub-Api-Version': '2022-11-28'
+}
 
-# repo = g.get_repo('ResultadosDigitais/pr-quality-checker')
-# pr = repo.get_pull(1)
-# pr_description = pr.body
+r = requests.get(
+	'https://api.github.com/repos/guilhermeeric/' + str(os.getenv('CIRCLE_PROJECT_REPONAME')) + '/pulls/' + os.getenv('CIRCLE_PULL_REQUEST').split('/')[-1],
+	headers=r_headers
+)
 
-# g.close()
+print('repo', str(os.getenv('CIRCLE_PROJECT_REPONAME')))
+print('pr number', os.getenv('CIRCLE_PULL_REQUEST').split('/')[-1])
 
-print('Repo, ' + os.getenv('CIRCLE_PROJECT_REPONAME'))
-print('Pull number, ' + os.getenv('CIRCLE_PULL_REQUEST'))
-print('Example var, ' + os.getenv('EXAMPLE_VAR'))
+pr_description = r.json()['body']
+print(pr_description)
 
-# if (len(pr_description) < 5):
-# 	print('Você não escreveu a descrição do seu PR.')
-	# exit(1)
+if (len(pr_description) < 5):
+	print('Você não escreveu a descrição do seu PR.')
+	exit(1)
 
 print('Parabéns! Você descreveu seu PR corretamente')
 exit(0)
